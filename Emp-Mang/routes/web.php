@@ -38,3 +38,33 @@ Route::get('/leave_requests/{id}', [LeaveRequestController::class, 'show'])->nam
 Route::get('/admin-leaves', [AdminLeaveController::class, 'index'])->name('admin-leaves.index');
 Route::get('/admin-leaves/{id}', [AdminLeaveController::class, 'show'])->name('admin-leaves.show');
 Route::put('/admin-leaves/{id}', [AdminLeaveController::class, 'update'])->name('admin-leaves.update');
+
+
+// routes/web.php
+
+use App\Http\Controllers\Auth\EmployeeAuthController;
+use App\Http\Controllers\Auth\AdminAuthController;
+
+// Employee Auth Routes
+Route::get('/employee-login', [EmployeeAuthController::class, 'showLoginForm'])->name('employee.login');
+Route::post('/employee-login', [EmployeeAuthController::class, 'login'])->name('employee.login');
+Route::post('/employee-logout', [EmployeeAuthController::class, 'logout'])->name('employee.logout');
+
+// Admin Auth Routes
+Route::get('/admin-login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+Route::post('/admin-login', [AdminAuthController::class, 'login'])->name('admin.login');
+Route::post('/admin-logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+
+// Employee Dashboard
+Route::middleware(['auth:employee'])->group(function () {
+    Route::get('/employee-dashboard', function () {
+        return view('employee.dashboard');
+    });
+});
+
+// Admin Dashboard
+Route::middleware(['auth:admin'])->group(function () {
+    Route::get('/admin-dashboard', function () {
+        return view('admin.dashboard');
+    });
+});
