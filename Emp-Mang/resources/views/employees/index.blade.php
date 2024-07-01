@@ -30,6 +30,7 @@
                 <table id="employeeTable" class="table table-striped table-hover">
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>NIC</th>
@@ -43,6 +44,7 @@
                     <tbody>
                         @foreach ($employees as $employee)
                             <tr id="employee-{{ $employee->id }}">
+                                <td>{{$employee->id}}</td>
                                 <td>{{ $employee->First_Name }}</td>
                                 <td>{{ $employee->Last_Name }}</td>
                                 <td>{{ $employee->NIC }}</td>
@@ -192,6 +194,22 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label for="casual_leave">Casual Leaves</label>
+                                    <input type="number" class="form-control" id="casual_leave" name="casual_leave"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="medical_leave">Medical Leaves</label>
+                                    <input type="number" class="form-control" id="medical_leave" name="medical_leave"
+                                        required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
                                     <label for="email">Email</label>
                                     <input type="email" class="form-control" id="email" name="email" required>
                                 </div>
@@ -212,31 +230,7 @@
         </div>
     </div>
 
-    <!-- Edit Employee Modal -->
-    <div class="modal fade" id="editEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="editEmployeeModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editEmployeeModalLabel">Edit Employee</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="editEmployeeForm">
-                        @csrf
-                        <input type="hidden" id="editEmployeeId" name="id">
-                        <!-- Add all input fields like in the Add Employee Modal -->
-                        <!-- ... -->
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary">Update Employee</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Add Department Modal -->
     <div class="modal fade" id="addDepartmentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"

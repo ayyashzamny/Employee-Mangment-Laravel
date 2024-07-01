@@ -6,6 +6,9 @@ use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Designation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\AnnualLeave;
+use DateTime;
 
 class EmployeeController extends Controller
 {
@@ -24,6 +27,7 @@ class EmployeeController extends Controller
 
     public function store(Request $request)
     {
+        // Validate the incoming request data
         $request->validate([
             'first_name' => 'required|string|max:45',
             'last_name' => 'required|string|max:45',
@@ -39,33 +43,74 @@ class EmployeeController extends Controller
             'designation_id' => 'required|exists:designations,id',
             'email' => 'required|email|max:45|unique:employees,email',
             'password' => 'required|string|max:45',
+            'casual_leave' => 'required|integer',
+            'medical_leave' => 'required|integer',
+
         ]);
 
-        // Create a new Employee instance and assign attributes
-        $employee = new Employee();
-        $employee->first_name = $request->first_name;
-        $employee->last_name = $request->last_name;
-        $employee->full_name = $request->full_name;
-        $employee->nic = $request->nic;
-        $employee->gender = $request->gender;
-        $employee->contact_no1 = $request->contact_no1;
-        $employee->contact_no2 = $request->contact_no2;
-        $employee->address = $request->address;
-        $employee->active_status = $request->active_status;
-        $employee->Permenent_date = $request->permanent_date;
-        $employee->department_id = $request->department_id;
-        $employee->designation_id = $request->designation_id;
-        $employee->email = $request->email;
-        $employee->password = bcrypt($request->password); // Assuming you store passwords securely (e.g., hashed)
+        // Start a database transaction
+        DB::beginTransaction();
 
-        // Save the employee record
-        $employee->save();
+        try {
+            // Create a new Employee instance and assign attributes
+            $employee = new Employee();
+            $employee->first_name = $request->first_name;
+            $employee->last_name = $request->last_name;
+            $employee->full_name = $request->full_name;
+            $employee->nic = $request->nic;
+            $employee->gender = $request->gender;
+            $employee->contact_no1 = $request->contact_no1;
+            $employee->contact_no2 = $request->contact_no2;
+            $employee->address = $request->address;
+            $employee->active_status = $request->active_status;
+            $employee->permenent_date = $request->permanent_date;
+            $employee->department_id = $request->department_id;
+            $employee->designation_id = $request->designation_id;
+            $employee->email = $request->email;
+            $employee->password = bcrypt($request->password); // Assuming you store passwords securely (e.g., hashed)
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Employee added successfully.',
-            'employee' => $employee,
-        ]);
+            // Save the employee record
+            $employee->save();
+
+            $permanentDate = new DateTime($request->permanent_date);
+            $year = $permanentDate->format('Y');
+
+
+            $medicalLeaves = $request->medical_leave;
+            $casualLeaves = $request->casual_leave;
+
+
+            // Create AnnualLeave instance and assign attributes
+            $annualLeave = new AnnualLeave();
+            $annualLeave->employee_id = $employee->id;
+            $annualLeave->year = $year;
+            $annualLeave->total_casual_leaves = $casualLeaves;
+            $annualLeave->total_medical_leaves = $medicalLeaves;
+            $annualLeave->balance_casual_leaves = $casualLeaves;
+            $annualLeave->balance_medical_leaves = $medicalLeaves;
+
+            // Save the annual leave record
+            $annualLeave->save();
+
+            // Commit the transaction
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Employee and leave details added successfully.',
+                'employee' => $employee,
+                'annualLeave' => $annualLeave,
+            ]);
+
+        } catch (\Exception $e) {
+            // Rollback the transaction if something goes wrong
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to add employee and leave details. Error: ' . $e->getMessage(),
+            ]);
+        }
     }
 
 
